@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Games: Tic-Tac-Toe, Rock Paper Scissors, Guess the Number</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f7f7f7;
+            flex-direction: column;
+        }
+        .game-buttons {
+            margin-top: 20px;
+        }
+        .game-buttons button {
+            padding: 20px 40px;
+            font-size: 1.5rem;
+            margin: 10px;
+            cursor: pointer;
+            border-radius: 10px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            transition: background-color 0.3s ease;
+        }
+        .game-buttons button:hover {
+            background-color: #45a049;
+        }
+        #rpsResult, #guessResult, #ticTacToeResult {
+            margin-top: 20px;
+            font-size: 1.5rem;
+        }
+        .game-section {
+            margin: 20px 0;
+        }
+        .tic-tac-toe-board {
+            display: grid;
+            grid-template-columns: repeat(3, 100px);
+            grid-template-rows: repeat(3, 100px);
+            gap: 5px;
+            margin-top: 20px;
+        }
+        .cell {
+            width: 100px;
+            height: 100px;
+            background-color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2rem;
+            cursor: pointer;
+            border: 2px solid #000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fun Games</h1>
+
+    <!-- Game Buttons -->
+    <div class="game-buttons">
+        <button id="startGameButton" onclick="startTicTacToe()">Start Tic-Tac-Toe Game</button>
+        <button id="startRPSGameButton" onclick="startRPSGame()">Start Rock, Paper, Scissors</button>
+        <button id="startGuessGameButton" onclick="startGuessGame()">Start Guess the Number</button>
+    </div>
+
+    <!-- Tic-Tac-Toe Game -->
+    <div class="game-section" id="ticTacToeSection" style="display:none;">
+        <h2>Tic-Tac-Toe</h2>
+        <div class="tic-tac-toe-board" id="board">
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+            <div class="cell" data-cell></div>
+        </div>
+        <div id="ticTacToeResult"></div>
+        <button onclick="restartTicTacToe()">Restart Tic-Tac-Toe Game</button>
+    </div>
+
+    <!-- Rock, Paper, Scissors Game -->
+    <div class="game-section" id="rpsSection" style="display:none;">
+        <h2>Rock, Paper, Scissors</h2>
+        <div class="choices" id="rpsChoices">
+            <button onclick="playRPS('rock')">Rock</button>
+            <button onclick="playRPS('paper')">Paper</button>
+            <button onclick="playRPS('scissors')">Scissors</button>
+        </div>
+        <div id="rpsResult"></div>
+    </div>
+
+    <!-- Guess the Number Game -->
+    <div class="game-section" id="guessSection" style="display:none;">
+        <h2>Guess the Number</h2>
+        <p>Guess a number between 1 and 10:</p>
+        <input type="number" id="guessInput" min="1" max="10" />
+        <button onclick="submitGuess()">Submit Guess</button>
+        <div id="guessResult"></div>
+    </div>
+
+    <script>
+        // Tic-Tac-Toe Game
+        const cells = document.querySelectorAll('[data-cell]');
+        const board = document.getElementById('board');
+        const ticTacToeResult = document.getElementById('ticTacToeResult');
+        let currentPlayer = 'X';
+        let gameActive = true;
+        const winningCombinations = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        function startTicTacToe() {
+            document.getElementById('ticTacToeSection').style.display = 'block';
+            document.getElementById('rpsSection').style.display = 'none';
+            document.getElementById('guessSection').style.display = 'none';
+        }
+
+        function handleCellClick(e) {
+            const cell = e.target;
+            if (cell.textContent !== '' || !gameActive) {
+                return;
+            }
+            cell.textContent = currentPlayer;
+            checkWinner();
+            if (gameActive) {
+                currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+                ticTacToeResult.textContent = `Player ${currentPlayer}'s turn`;
+            }
+        }
+
+        function checkWinner() {
+            const hasWinner = winningCombinations.some(combination => {
+                return combination.every(index => {
+                    return cells[index].textContent === currentPlayer;
+                });
+            });
+            if (hasWinner) {
+                ticTacToeResult.textContent = `Player ${currentPlayer} wins!`;
+                gameActive = false;
+            } else if (Array.from(cells).every(cell => cell.textContent !== '')) {
+                ticTacToeResult.textContent = 'It\'s a draw!';
+                gameActive = false;
+            }
+        }
+
+        function restartTicTacToe() {
+            cells.forEach(cell => {
+                cell.textContent = '';
+            });
+            currentPlayer = 'X';
+            gameActive = true;
+            ticTacToeResult.textContent = `Player X's turn`;
+        }
+
+        cells.forEach(cell => {
+            cell.addEventListener('click', handleCellClick);
+        });
+
+        // Rock, Paper, Scissors Game
+        function startRPSGame() {
+            document.getElementById('rpsSection').style.display = 'block';
+            document.getElementById('ticTacToeSection').style.display = 'none';
+            document.getElementById('guessSection').style.display = 'none';
+        }
+
+        function playRPS(playerChoice) {
+            const choices = ['rock', 'paper', 'scissors'];
+            const computerChoice = choices[Math.floor(Math.random() * 3)];
+            let result;
+
+            if (playerChoice === computerChoice) {
+                result = 'It\'s a tie!';
+            } else if (
+                (playerChoice === 'rock' && computerChoice === 'scissors') ||
+                (playerChoice === 'paper' && computerChoice === 'rock') ||
+                (playerChoice === 'scissors' && computerChoice === 'paper')
+            ) {
+                result = `You win! ${playerChoice} beats ${computerChoice}`;
+            } else {
+                result = `You lose! ${computerChoice} beats ${playerChoice}`;
+            }
+
+            document.getElementById('rpsResult').textContent = `You chose ${playerChoice}, computer chose ${computerChoice}. ${result}`;
+        }
+
+        let randomNumber = Math.floor(Math.random() * 10) + 1;
+
+        function startGuessGame() {
+            document.getElementById('guessSection').style.display = 'block';
+            document.getElementById('rpsSection').style.display = 'none';
+            document.getElementById('ticTacToeSection').style.display = 'none';
+            randomNumber = Math.floor(Math.random() * 10) + 1; 
+            document.getElementById('guessResult').textContent = '';
+        }
+
+        function submitGuess() {
+            const guess = parseInt(document.getElementById('guessInput').value);
+            let result;
+
+            if (guess === randomNumber) {
+                result = 'Congratulations! You guessed the correct number.';
+            } else if (guess < randomNumber) {
+                result = 'Too low! Try a higher number.';
+            } else {
+                result = 'Too high! Try a lower number.';
+            }
+
+            document.getElementById('guessResult').textContent = result;
+        }
+    </script>
+</body>
+</html>
+
+
+
+
+
+
+
